@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora IMC - UNSAAC</title>
+<style>
+:root{
+  --wine:#7A1737;
+  --wine-dark:#531027;
+  --gold:#C8A45D;
+  --cream:#F8F4EE;
+  --ink:#29252A;
+  --muted:#6F6870;
+  --white:#FFFFFF;
+  --line:#E7DCD0;
+}
+.flower{
+  position:absolute; right:28px; top:20px; width:62px; height:62px;
+  border:1px solid rgba(200,164,93,.55); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.07);
+  box-shadow:inset 0 0 0 5px rgba(200,164,93,.06);
+}
+.flower span{
+  color:var(--gold); font-size:34px; line-height:1;
+  text-shadow:0 2px 8px rgba(0,0,0,.18);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(135deg,#f8f4ee,#eee5df);
+  color:var(--ink); display:flex; align-items:center; justify-content:center;
+  padding:24px;
+}
+.card{
+  width:min(760px,100%); background:var(--white); border-radius:24px;
+  box-shadow:0 18px 55px rgba(83,16,39,.16); overflow:hidden;
+  border:1px solid var(--line);
+}
+.header{
+  background:linear-gradient(135deg,var(--wine-dark),var(--wine));
+  color:white; padding:28px 30px 24px; position:relative;
+}
+.header:after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:4px;
+  background:var(--gold);
+}
+.brand{font-size:14px; letter-spacing:1.4px; font-weight:700; opacity:.95}
+h1{margin:7px 0 4px; font-size:30px}
+.subtitle{margin:0; opacity:.9}
+.ornament{margin-top:12px;color:var(--gold);font-size:13px;letter-spacing:3px}
+.content{padding:30px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+label{display:block;font-weight:700;margin-bottom:8px}
+input{
+  width:100%; padding:14px 15px; border:2px solid var(--line); border-radius:12px;
+  font-size:17px; outline:none; transition:.2s;
+}
+input:focus{border-color:var(--gold); box-shadow:0 0 0 3px rgba(200,164,93,.15)}
+button{
+  width:100%; margin-top:22px; padding:15px; border:0; border-radius:12px;
+  background:var(--wine); color:white; font-size:17px; font-weight:700;
+  cursor:pointer; box-shadow:0 7px 18px rgba(122,23,55,.22);
+}
+button:hover{background:var(--wine-dark)}
+.result{
+  margin-top:25px; padding:25px; border-radius:18px; background:var(--cream);
+  border:1px solid var(--line); text-align:center; display:none;
+}
+.number{font-size:52px;font-weight:800;color:var(--wine);line-height:1}
+.category{font-size:22px;font-weight:800;margin-top:10px}
+.note{margin:12px 0 0;color:var(--muted);font-size:14px}
+.scale{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:22px}
+.scale div{padding:9px 4px;border-radius:8px;text-align:center;font-size:11px;font-weight:700;background:#eee}
+.footer{padding:18px 30px;background:#faf8f5;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center}
+@media(max-width:600px){.flower{right:18px;top:18px;width:48px;height:48px}.flower span{font-size:27px}.grid{grid-template-columns:1fr}.content{padding:22px}.scale{grid-template-columns:repeat(3,1fr)}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="card">
+  <header class="header">
+    <div class="flower" aria-hidden="true">
+      <span>✿</span>
+    </div>
+    <div class="brand">UNIVERSIDAD NACIONAL DE SAN ANTONIO ABAD DEL CUSCO</div>
+    <h1>Calculadora de IMC</h1>
+    <p class="subtitle">Herramienta sencilla para calcular el índice de masa corporal</p>
+    <div class="ornament">──── ✦ ────</div>
+  </header>
+
+  <main class="content">
+    <div class="grid">
+      <div>
+        <label for="peso">Peso (kg)</label>
+        <input id="peso" type="number" min="1" max="500" step="0.1" placeholder="Ej. 60">
+      </div>
+      <div>
+        <label for="talla">Talla (m)</label>
+        <input id="talla" type="number" min="0.5" max="2.8" step="0.01" placeholder="Ej. 1.65">
+      </div>
+    </div>
+
+    <button onclick="calcular()">CALCULAR IMC</button>
+
+    <section id="resultado" class="result" aria-live="polite">
+      <div class="number" id="imc">0.00</div>
+      <div class="category" id="categoria"></div>
+      <p class="note" id="detalle"></p>
+      <div class="scale">
+        <div>&lt;18.5<br>Bajo peso</div>
+        <div>18.5–24.9<br>Normal</div>
+        <div>25–29.9<br>Sobrepeso</div>
+        <div>30–34.9<br>Obesidad I</div>
+        <div>35–39.9<br>Obesidad II</div>
+        <div>≥40<br>Obesidad III</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Funciona sin internet y sin registro. Los datos ingresados no se envían a ningún servidor.
+  </footer>
+</div>
+
+<script>
+function calcular(){
+  const peso=parseFloat(document.getElementById('peso').value);
+  const talla=parseFloat(document.getElementById('talla').value);
+  const r=document.getElementById('resultado');
+
+  if(!peso || !talla || peso<=0 || talla<=0){
+    alert('Ingresa un peso y una talla válidos.');
+    return;
+  }
+
+  const imc=peso/(talla*talla);
+  let cat='';
+
+  if(imc<18.5) cat='BAJO PESO';
+  else if(imc<25) cat='PESO NORMAL';
+  else if(imc<30) cat='SOBREPESO';
+  else if(imc<35) cat='OBESIDAD TIPO 1';
+  else if(imc<40) cat='OBESIDAD TIPO 2';
+  else cat='OBESIDAD TIPO 3';
+
+  document.getElementById('imc').textContent=imc.toFixed(2);
+  document.getElementById('categoria').textContent=cat;
+  document.getElementById('detalle').textContent='IMC = peso ÷ (talla × talla)';
+  r.style.display='block';
+}
+</script>
+</body>
+</html>
